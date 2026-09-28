@@ -1,0 +1,64 @@
+name: Salesforce Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  salesforce-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install --global @salesforce/cli
+
+      - name: Verify Salesforce CLI
+        run: |
+          sf --version
+
+      - name: Create JWT Key
+        shell: bash
+        run: |
+          echo "${{ secrets.SF_JWT_KEY }}" > "${RUNNER_TEMP}/server.key"
+          chmod 600 "${RUNNER_TEMP}/server.key"
+
+      - name: Authenticate Salesforce
+        run: |
+          sf org login jwt \
+            --username "${{ secrets.SF_USERNAME }}" \
+            --jwt-key-file "${RUNNER_TEMP}/server.key" \
+            --client-id "${{ secrets.SF_CLIENT_ID }}" \
+            --instance-url "${{ secrets.SF_INSTANCE_URL }}"
+
+      - name: Verify Target Org
+        run: |
+          sf org display \
+            --target-org "${{ secrets.SF_USERNAME }}"
+
+      - name: Validate Deployment
+        run: |
+          sf project deploy start \
+            --manifest manifest/package.xml \
+            --target-org "${{ secrets.SF_USERNAME }}" \
+            --test-level RunLocalTests \
+            --dry-run \
+            --wait 30
+
+      - name: Deploy
+        run: |
+          sf project deploy start \
+            --manifest manifest/package.xml \
+            --target-org "${{ secrets.SF_USERNAME }}" \
+            --test-level RunLocalTests \
+            --wait 30

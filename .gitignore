@@ -1,0 +1,38 @@
+# Salesforce CLI
+.sfdx/
+.sf/
+.sfpowerkit/
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Salesforce authentication / credentials
+*.key
+*.crt
+*.pem
+
+# Environment files
+.env
+.env.*
+
+# Temporary files
+tmp/
+temp/
+
+# Test output
+coverage/
+test-results/
+
+# Generated metadata
+manifest/generated-package.xml
